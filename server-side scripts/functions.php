@@ -19,7 +19,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
 
 The licensee undertakes to mention the name SMARTRIQS, the name of the licensor (Andras Molnar) 
 and to cite the following article in all publications in which results of experiments conducted 
-with the Software are published: Molnar, A. (2018). “SMARTRIQS: A Simple Method Allowing 
+with the Software are published: Molnar, A. (2018). â€œSMARTRIQS: A Simple Method Allowing 
 Real-Time Respondent Interaction in Qualtrics Surveys". Retrieved from https://smartriqs.com
 
 -->
@@ -84,7 +84,7 @@ function importData($data){
 			array_push($allGroups, $thisRow[0]);
 			array_push($dataTable,$thisRow);
 		}
-		else {													// If this group is already in the data table, update.
+		else {								// If this group is already in the data table, update.
 			$dataTable[array_search($thisRow[0], $allGroups)] = $thisRow;
 		}
 		$row++;
