@@ -26,9 +26,6 @@ Real-Time Respondent Interaction in Qualtrics Surveys". Retrieved from https://s
 
 Qualtrics.SurveyEngine.addOnload(function()
 {
-
-var serverURL = "https://smartriqs.com/db";	// Modify this URL if you deploy SMARTRIQS to your own server
-
 var page = this; page.hideNextButton();	
 console.log("Begin CHAT");
 
@@ -44,6 +41,15 @@ var inputField = document.getElementById("inputField");
 var submitButton = document.getElementById("submitButton");
 
 // Get parameters from Qualtrics
+if ("${e://Field/serverURL}" == false) {
+	var serverURL = "https://server.smartriqs.com/php";
+	console.log("Default server");
+} 
+else{	// use custom server URL if serverURL is defined in Qualtrics
+	var serverURL = "${e://Field/serverURL}";
+	console.log("Custom server: " + serverURL);
+}				
+var allowExit = ("${e://Field/allowExitChat}")
 var chatWindowWidth = parseInt("${e://Field/chatWindowWidth}");
 var chatWindowHeight = parseInt("${e://Field/chatWindowHeight}");
 var chatTimeFormat = "${e://Field/chatTimeFormat}";
