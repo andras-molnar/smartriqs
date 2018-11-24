@@ -26,13 +26,18 @@ Real-Time Respondent Interaction in Qualtrics Surveys". Retrieved from https://s
 
 Qualtrics.SurveyEngine.addOnload(function()
 {
-
-var serverURL = "https://smartriqs.com/db";	// Modify this URL if you deploy SMARTRIQS to your own server
-
 var page = this; page.hideNextButton();
 console.log("Begin COMPLETE");
 
 // Get values from Qualtrics
+if ("${e://Field/serverURL}" == false) {
+	var serverURL = "https://server.smartriqs.com/php";
+	console.log("Default server");
+} 
+else{	// use custom server URL if serverURL is defined in Qualtrics
+	var serverURL = "${e://Field/serverURL}";
+	console.log("Custom server: " + serverURL);
+}	
 var timeOutLog = 	Qualtrics.SurveyEngine.getEmbeddedData("timeOutLog");
 if (timeOutLog == "null") {	Qualtrics.SurveyEngine.setEmbeddedData( "timeOutLog", "OK -- no issues");}
 else {	Qualtrics.SurveyEngine.setEmbeddedData( "timeOutLog", timeOutLog.substring(4));}
