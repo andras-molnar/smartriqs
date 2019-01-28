@@ -1,6 +1,6 @@
 /* 
 
-Copyright 2018 Andras Molnar
+Copyright 2019 Andras Molnar
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
 and associated documentation files (the "Software"), to deal in the Software without 
@@ -19,7 +19,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
 
 The licensee undertakes to mention the name SMARTRIQS, the name of the licensor (Andras Molnar) 
 and to cite the following article in all publications in which results of experiments conducted 
-with the Software are published: Molnar, A. (2018). “SMARTRIQS: A Simple Method Allowing 
+with the Software are published: Molnar, A. (2019). “SMARTRIQS: A Simple Method Allowing 
 Real-Time Respondent Interaction in Qualtrics Surveys". Retrieved from https://smartriqs.com
 
 */
@@ -43,6 +43,14 @@ var freezeTime 		= parseInt(Qualtrics.SurveyEngine.getEmbeddedData("freezeTime")
 var sendData = encodeURIComponent(Qualtrics.SurveyEngine.getEmbeddedData(Qualtrics.SurveyEngine.getEmbeddedData("sendData")));
 	if (sendData == "[.....]")	{sendData = "N/A";}
 
+if ("${e://Field/terminateText}" == false){
+	var terminateText = "The survey has been terminated. Please contact the researcher to receive partial compensation for your participation.";
+}
+else{
+	var terminateText = "${e://Field/terminateText}";
+	console.log("Terminate text set manually: " + terminateText);
+}	
+	
 // Initialize variables
 var status = "null";
 var errorCount = 0;
@@ -85,11 +93,11 @@ function makeRequest() {
 		// Otherwise, check if this participant timed out
 		else {
 			if (status == "timed out") {
-				if (Qualtrics.SurveyEngine.getEmbeddedData("groupSize") == 2){
-					document.getElementById("infoBox").innerHTML = "You have been inactive for too long.<br>In order to let the other participant continue the study,<br>the computer has generated a response for you: " + valueInDatabase;
+				if (valueInDatabase == "terminated"){
+					document.getElementById("infoBox").innerHTML = "You have been inactive for too long.<br><br>" + terminateText;
 				}
 				else {
-					document.getElementById("infoBox").innerHTML = "You have been inactive for too long.<br>In order to let the other participants continue the study,<br>the computer has generated a response for you: " + valueInDatabase;
+					document.getElementById("infoBox").innerHTML = "You have been inactive for too long.<br>In order to let the other participant(s) continue the study,<br>the computer has generated a response for you: " + valueInDatabase + "<br><br>You can continue the study.";
 				}
 				
 				// If there was a timeout, do not automatically proceed to the next page. Display warning message then show next button after a short delay
