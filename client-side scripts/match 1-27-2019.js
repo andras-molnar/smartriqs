@@ -1,6 +1,6 @@
 /* 
 
-Copyright 2018 Andras Molnar
+Copyright 2019 Andras Molnar
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
 and associated documentation files (the "Software"), to deal in the Software without 
@@ -19,7 +19,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
 
 The licensee undertakes to mention the name SMARTRIQS, the name of the licensor (Andras Molnar) 
 and to cite the following article in all publications in which results of experiments conducted 
-with the Software are published: Molnar, A. (2018). “SMARTRIQS: A Simple Method Allowing 
+with the Software are published: Molnar, A. (2019). “SMARTRIQS: A Simple Method Allowing 
 Real-Time Respondent Interaction in Qualtrics Surveys". Retrieved from https://smartriqs.com
 
 */
@@ -48,7 +48,15 @@ var freezeTime 		= parseInt(Qualtrics.SurveyEngine.getEmbeddedData("freezeTime")
 var dropInactivePlayers = parseInt(Qualtrics.SurveyEngine.getEmbeddedData("dropInactivePlayers"));
 	if (dropInactivePlayers > 60 || dropInactivePlayers < 3	|| isNaN(dropInactivePlayers)) {dropInactivePlayers = 10;}	// use default if too high or too low
 var botMatch 		= Qualtrics.SurveyEngine.getEmbeddedData("botMatch");
-	if (botMatch != "yes"){botMatch = "no";}	
+	if (botMatch != "yes"){botMatch = "no";}
+
+if ("${e://Field/terminateText}" == false){
+	var terminateText = "The survey has been terminated. Please contact the researcher to receive partial compensation for your participation.";
+}
+else{
+	var terminateText = "${e://Field/terminateText}";
+	console.log("Terminate text set manually: " + terminateText);
+}
 
 console.log("Max wait time = " + maxWaitTime + "s | Freeze time = " + freezeTime + "s | Drop inactive = " + dropInactivePlayers + "s | BOT match = " + botMatch);
 
@@ -88,21 +96,18 @@ function attemptMatch() {
 					botArray = bots.split(",");	
 					numBots = botArray.length;
 					if (Qualtrics.SurveyEngine.getEmbeddedData("groupSize") == 2){
-						infoBox.innerHTML = "Unfortunately, there is no one else available.<br>You have been matched with a BOT.";
+						infoBox.innerHTML = "Unfortunately, there is no one else available.<br><br>You have been matched with a BOT.";
 					}
 					else{
-						infoBox.innerHTML = "Unfortunately, there are not enough other participants available.<br>You have been matched with " + (Qualtrics.SurveyEngine.getEmbeddedData("groupSize") - 1 - numBots) + " other participant(s) and " + numBots + " BOT(s).";
+						infoBox.innerHTML = "Unfortunately, there are not enough other participants available.<br><br>You have been matched with " + (Qualtrics.SurveyEngine.getEmbeddedData("groupSize") - 1 - numBots) + " other participant(s) and " + numBots + " BOT(s).";
 					}
 					setTimeout(function () {page.showNextButton();}, 1000 * freezeTime);
 				}
 				else {
-					if (Qualtrics.SurveyEngine.getEmbeddedData("groupSize") == 2){
-						infoBox.innerHTML = "Unfortunately, there is no one else available. Please exit the survey and try again later.";
-					}
-					else{
-						infoBox.innerHTML = "Unfortunately, there are not enough other participants available. Please exit the survey and try again later";
-					}
 					console.log("No available participant -- Survey terminated");
+					infoBox.innerHTML = "Unfortunately, there are not enough other participants available.<br><br>" + terminateText;
+					Qualtrics.SurveyEngine.setEmbeddedData( "timeOutLog", "No available participant -- Survey terminated" );
+					setTimeout(function () {page.showNextButton();}, 2000 * freezeTime);
 				}
 			}
 		}
