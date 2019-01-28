@@ -1,6 +1,6 @@
 <!-- 
 
-Copyright 2018 Andras Molnar
+Copyright 2019 Andras Molnar
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
 and associated documentation files (the "Software"), to deal in the Software without 
@@ -19,7 +19,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
 
 The licensee undertakes to mention the name SMARTRIQS, the name of the licensor (Andras Molnar) 
 and to cite the following article in all publications in which results of experiments conducted 
-with the Software are published: Molnar, A. (2018). “SMARTRIQS: A Simple Method Allowing 
+with the Software are published: Molnar, A. (2019). “SMARTRIQS: A Simple Method Allowing 
 Real-Time Respondent Interaction in Qualtrics Surveys". Retrieved from https://smartriqs.com
 
 -->
@@ -84,7 +84,7 @@ function importData($data){
 			array_push($allGroups, $thisRow[0]);
 			array_push($dataTable,$thisRow);
 		}
-		else {								// If this group is already in the data table, update.
+		else {													// If this group is already in the data table, update.
 			$dataTable[array_search($thisRow[0], $allGroups)] = $thisRow;
 		}
 		$row++;
@@ -129,7 +129,7 @@ function errorMessage($errorID) {
 	if ($errorID == "006"){$messageText = "Roles are missing.";}
 	if ($errorID == "007"){$messageText = "Participant role is missing.";}
 	if ($errorID == "008"){$messageText = "Stage number is missing.";}
-	if ($errorID == "009"){$messageText = "Value is missing.";}
+	#if ($errorID == "009"){$messageText = "Value is missing.";}
 	if ($errorID == "010"){$messageText = "Group ID is missing.";}
 	
 	###	101-199 Invalid data errors
@@ -148,12 +148,10 @@ function errorMessage($errorID) {
 	if ($errorID == "202"){$messageText = "The group size in the existing data (" . $headerGroupSize . ") does not match the group size defined for this participant (" . $groupSize . ").";}
 	if ($errorID == "203"){$messageText = "The number of stages in the existing data (" . $headerNumStages . ") does not match the number of stages defined for this participant (" . $numStages . ").";}
 	if ($errorID == "204"){$messageText = "The roles in the existing data (" . implode(',', $headerRolesArray) . ") do not match the roles defined for this participant (" . implode(',',$rolesArray) . "). The roles are case sensitive and the order of roles must be the same.";}
-	if ($errorID == "205"){$messageText = "The value(s) to be retrieved (" . implode(',',$getValuesArray) . ") do not match the roles defined for this study (" . implode(',',$rolesArray) . ").";}
-	if ($errorID == "206"){$messageText = "The number of default responses (" . count($defaultValuesArray) . ") is different from the number of values to be retrieved (" . count($getValuesArray) . "). These two numbers must be the same.";}
-	
-	
-	###	301-399 Miscallenous errors
-	
+	#if ($errorID == "205"){$messageText = "The value(s) to be retrieved (" . implode(',',$getValuesArray) . ") do not match the roles defined for this study (" . implode(',',$rolesArray) . ").";}
+	#if ($errorID == "206"){$messageText = "The number of default responses (" . count($defaultValuesArray) . ") is different from the number of values to be retrieved (" . count($getValuesArray) . "). These two numbers must be the same.";}
+
+
 	
 	###	401-599 Reserved (default browser error codes) ###### 
 	#														#
