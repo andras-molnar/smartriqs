@@ -1,6 +1,6 @@
 <!-- 
 
-Copyright 2018 Andras Molnar
+Copyright 2019 Andras Molnar
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
 and associated documentation files (the "Software"), to deal in the Software without 
@@ -19,7 +19,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
 
 The licensee undertakes to mention the name SMARTRIQS, the name of the licensor (Andras Molnar) 
 and to cite the following article in all publications in which results of experiments conducted 
-with the Software are published: Molnar, A. (2018). “SMARTRIQS: A Simple Method Allowing 
+with the Software are published: Molnar, A. (2019). “SMARTRIQS: A Simple Method Allowing 
 Real-Time Respondent Interaction in Qualtrics Surveys". Retrieved from https://smartriqs.com
 
 -->
@@ -54,11 +54,6 @@ if ($groupSize < 2 or $groupSize > 8)	{errorMessage("104");}
 if (filter_var($numStages, FILTER_VALIDATE_INT) == FALSE or $numStages < 1)	{errorMessage("105");}
 if (count($conditionsArray) > 1 and in_array($participantCondition, $conditionsArray) == FALSE and $participantCondition != "random")	{errorMessage("108");}
 if ($getStage > $numStages or filter_var($getStage, FILTER_VALIDATE_INT) == FALSE or $getStage < 1)	{errorMessage("107");}
-for ($i = 0; $i < count($getValuesArray); $i++){
-	if (in_array($getValuesArray[$i], $rolesArray) == FALSE) {errorMessage("205"); break;}
-}
-if (count($getValuesArray) != count($defaultValuesArray)) {errorMessage("206");}
-
 
 // Retrieve database 
 if ($errorCount == 0) {
@@ -84,7 +79,7 @@ if ($errorCount == 0){
 createOutputFields($status, $timeOutLog, $retrievedValues, $missingValues, $timeOutResponsesLog, $participantValue);	
 
 
-// Function that retrueves values
+// Function that retrieves values
 function getValues($datafile, $group,$stage,$values,$roles,$indexes, $timeOut, $defaults){
 	global $status, $retrievedValues, $missingValues, $timeOutResponsesLog, $timeOutLog, $participantIndex, $participantValue;
 	$retrievedValues = [];
@@ -118,11 +113,17 @@ function getValues($datafile, $group,$stage,$values,$roles,$indexes, $timeOut, $
 					$newMessageTimeOutLog = " *** BOT in role " . $values[$i] . " responded: " . $retrievedValues[$i] . " (stage " . $stage .  ").";
 					if (strpos($timeOutLog, $newMessageTimeOutLog) == false) {$timeOutLog = $timeOutLog . $newMessageTimeOutLog;} // only add errors once
 				}	
-				// Otherwise, it must be a timeout response
+				// Otherwise, it must be a timeout response (either terminate or auto-respond)
 				else{
-					$newMessageTimeOutResponsesLog = "Participant " . $values[$i] . " seems to be inactive and has not submitted any response.<br>The computer has generated a response for Participant " . $values[$i] . "<br>You can continue the study.<br><br>";
+					if ($retrievedValues[$i] == "terminated"){
+						$newMessageTimeOutResponsesLog = "Participant " . $values[$i] . " seems to be inactive and has not submitted any response.";
+						$newMessageTimeOutLog = " *** Warning: Participant " . $values[$i] . " timed out in stage " . $stage . ". Survey terminated.";
+					}
+					else{
+						$newMessageTimeOutResponsesLog = "Participant " . $values[$i] . " seems to be inactive and has not submitted any response.<br>The computer has generated a response for Participant " . $values[$i] . "<br>You can continue the study.<br><br>";
+						$newMessageTimeOutLog = " *** Warning: Participant " . $values[$i] . " timed out in stage " . $stage . ". Default response is " . $retrievedValues[$i] . ".";
+					}
 					if ($thisIndex != $participantIndex and strpos($timeOutResponsesLog, $newMessageTimeOutResponsesLog) == false) {$timeOutResponsesLog = $timeOutResponsesLog . $newMessageTimeOutResponsesLog;} // only add errors once
-					$newMessageTimeOutLog = " *** Warning: Participant " . $values[$i] . " timed out in stage " . $stage . ". Default response is " . $retrievedValues[$i] . ".";
 					if ($thisIndex != $participantIndex and strpos($timeOutLog, $newMessageTimeOutLog) == false) {$timeOutLog = $timeOutLog . $newMessageTimeOutLog;} // only add errors once
 				}
 			}
