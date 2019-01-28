@@ -1,6 +1,6 @@
 /* 
 
-Copyright 2018 Andras Molnar
+Copyright 2019 Andras Molnar
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
 and associated documentation files (the "Software"), to deal in the Software without 
@@ -19,7 +19,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
 
 The licensee undertakes to mention the name SMARTRIQS, the name of the licensor (Andras Molnar) 
 and to cite the following article in all publications in which results of experiments conducted 
-with the Software are published: Molnar, A. (2018). “SMARTRIQS: A Simple Method Allowing 
+with the Software are published: Molnar, A. (2019). “SMARTRIQS: A Simple Method Allowing 
 Real-Time Respondent Interaction in Qualtrics Surveys". Retrieved from https://smartriqs.com
 
 */
@@ -38,6 +38,7 @@ else{	// use custom server URL if serverURL is defined in Qualtrics
 	var serverURL = "${e://Field/serverURL}";
 	console.log("Custom server: " + serverURL);
 }	
+
 var maxWaitTime 	= parseInt(Qualtrics.SurveyEngine.getEmbeddedData("maxWaitTime"));	
 	if (maxWaitTime > 600 || maxWaitTime < 30 || isNaN(maxWaitTime)) 	{maxWaitTime = 180;} // use default if too high or too low
 var freezeTime 		= parseInt(Qualtrics.SurveyEngine.getEmbeddedData("freezeTime"));
@@ -47,19 +48,101 @@ console.log("Max wait time = " + maxWaitTime + "s | Freeze time = " + freezeTime
 // Initialize variables
 var request = new httpRequest();
 request.method = "GET";
-var saveDataArray 		= Qualtrics.SurveyEngine.getEmbeddedData("saveData").split(",");
-var numValues 			= saveDataArray.length;
-var numValuesToGet		= Qualtrics.SurveyEngine.getEmbeddedData("getData").split(",").length;
+var roles 				= Qualtrics.SurveyEngine.getEmbeddedData("roles");
+var rolesArray			= roles.split(",");
 var retrievedValue 		= [];
 var participantValue	= null;
 var attemptCount 		= 1;
 var timeOut 			= "no";
+var terminate 			= "no";
 var status 				= null;
 var missingValues 		= 0;
 var errorCount 			= 0;
 var errorLog 			= "";
 
-attemptGet();
+if ("${e://Field/terminateText}" == false){
+	var terminateText = "The survey has been terminated. Please contact the researcher to receive partial compensation for your participation.";
+}
+else{
+	var terminateText = "${e://Field/terminateText}";
+	console.log("Terminate text set manually: " + terminateText);
+}
+
+if ("${e://Field/getData}" == false){
+	errorCount++;
+	var numValuesToGet = 0;
+	status = status + "<p style='font-weight:bold; color:red'>ERROR 009: Value to be retrieved is missing.";
+}
+else{
+	var getData				= Qualtrics.SurveyEngine.getEmbeddedData("getData");
+	var getDataArray 		= getData.split(",");
+	var numValuesToGet		= getDataArray.length;
+}
+
+if ("${e://Field/saveData}" == false){
+	errorCount++;
+	var numValuesToSave = 0;
+	status = status + "<p style='font-weight:bold; color:red'>ERROR 016: Unable to save retrieved value -- embedded data for saving was not defined.";
+}
+else{
+	var saveData			= Qualtrics.SurveyEngine.getEmbeddedData("saveData");
+	var saveDataArray 		= saveData.split(",");
+	var numValuesToSave		= saveDataArray.length;
+}
+
+if ("${e://Field/defaultData}" == false){
+	// If no default is provided, check if botMatch is set. If yes, display error message.
+	if ("${e://Field/botMatch}" == "yes"){
+		errorCount++;
+		status = status + "<p style='font-weight:bold; color:red'>ERROR 017: Missing default data. Default data must be defined when using BOTs.";
+		console.log("Missing default data error");
+	}
+	// ...Otherwise, terminate survey if timed out --> this must not be empty if BOT is set
+	else{
+		var defaultDataArray = [];
+		for (i = 0; i < numValuesToGet; i++){
+			defaultDataArray[i] = "terminated";
+		}
+		var defaultData			= defaultDataArray.toString();
+		var numDefaultValues 	= numValuesToGet;
+		console.log("Terminate if timed out");
+	}
+}
+else{
+	var defaultData 		= Qualtrics.SurveyEngine.getEmbeddedData("defaultData");
+	var defaultDataArray	= defaultData.split(",");
+	var numDefaultValues	= defaultDataArray.length;
+	console.log("Use default response(s) if timed out: " + defaultDataArray);
+}
+
+// Check for incorrect / mismatching input data:
+for (i = 0; i < numValuesToGet; i++){
+	if (rolesArray.includes(getDataArray[i]) == false){
+		errorCount++;
+		status = status + "<p style='font-weight:bold; color:red'>ERROR 205: The value(s) to be retrieved (" + getData + ") do not match the roles defined for this study (" + roles + ").";
+		break;
+	}
+}
+
+if (numDefaultValues != numValuesToGet){
+	errorCount++;
+	status = status + "<p style='font-weight:bold; color:red'>ERROR 206: The number of default responses (" + numDefaultValues + ") does not match the number of responses to be retrieved (" + numValuesToGet + ").</p>";
+}
+
+if (numValuesToGet != numValuesToSave){
+	errorCount++;
+	status = status + "<p style='font-weight:bold; color:red'>ERROR 207: The number of responses to be retrieved (" + numValuesToGet + ") does not match the number of responses to be saved (" + numValuesToSave + ").</p>";
+}
+
+console.log("Num retrieved | saved | default: " + numValuesToGet + " | " + numValuesToSave + " | " + numDefaultValues);
+
+// If there are no errors, get data, otherwise display error message
+if (errorCount ==0 ) {
+	attemptGet();
+}
+else {
+	document.getElementById("infoBox").innerHTML = status;
+}
 
 
 // Function that attempts to retrieve values
@@ -69,21 +152,30 @@ function attemptGet() {
 		makeRequest();
 		console.log("Attempt = " + attemptCount + " | Status = " + status);
 		if (status == "ready" && attemptCount >= freezeTime){
-			if (Qualtrics.SurveyEngine.getEmbeddedData("operation")) {runOperations();}
-			if (errorCount == 0){
-				if (timeOut == "yes"){
-					document.getElementById("infoBox").innerHTML = timeOutResponsesLog;  
-					setTimeout(function () {page.showNextButton();}, 1000 * freezeTime);
-				}
-				else{
-					console.log("GET successful");
-					page.clickNextButton();
-				}	
+			console.log("Concluding GET...");
+			if (terminate == "yes"){
+				console.log("Timed out -- survey terminated");
+				document.getElementById("infoBox").innerHTML = timeOutResponsesLog + "<br><br>" + terminateText;
+				setTimeout(function () {page.showNextButton();}, 2000 * freezeTime);
 			}
+			else {
+				if (Qualtrics.SurveyEngine.getEmbeddedData("operation")) {runOperations();}
+				if (errorCount == 0){
+					if (timeOut == "yes"){
+						console.log("GET successful -- default response(s)")
+						document.getElementById("infoBox").innerHTML = timeOutResponsesLog;  
+						setTimeout(function () {page.showNextButton();}, 1000 * freezeTime);
+					}
+					else{
+						console.log("GET successful");
+						page.clickNextButton();
+					}	
+				}
+			}	
 		}
 		else {
 		// Check if there was any error. If yes, display it and stop the experiment
-			if (status.includes("ERROR") == true){	document.getElementById("infoBox").innerHTML = status;	console.log("display errors");}
+			if (status.includes("ERROR") == true){	document.getElementById("infoBox").innerHTML = status;	console.log("Display errors");}
 			else{attemptCount++;attemptGet();}	// ...otherwise, keep trying
 		}
 	},  1000);
@@ -92,7 +184,7 @@ function attemptGet() {
 
 // Function that makes the request
 function makeRequest() {
-		
+	
 	request.url = serverURL + "/get.php" +
 	"?researcherID=" 	+ Qualtrics.SurveyEngine.getEmbeddedData("researcherID") + 
 	"&studyID=" 		+ Qualtrics.SurveyEngine.getEmbeddedData("studyID") + 
@@ -100,9 +192,9 @@ function makeRequest() {
 	"&numStages=" 		+ Qualtrics.SurveyEngine.getEmbeddedData("numStages") + 
 	"&getStage=" 		+ Qualtrics.SurveyEngine.getEmbeddedData("getStage") + 
 	"&timeZone=" 		+ Qualtrics.SurveyEngine.getEmbeddedData("timeZone") +		
-	"&roles=" 			+ Qualtrics.SurveyEngine.getEmbeddedData("roles") + 
-	"&getValue=" 		+ Qualtrics.SurveyEngine.getEmbeddedData("getData") + 
-	"&defaultValue=" 	+ Qualtrics.SurveyEngine.getEmbeddedData("defaultData") + 
+	"&roles=" 			+ roles + 
+	"&getValue=" 		+ getData + 
+	"&defaultValue=" 	+ defaultData + 
 	"&timeOut=" 		+ timeOut + 
 	"&timeOutLog=" 		+ String(Qualtrics.SurveyEngine.getEmbeddedData("timeOutLog"));
 	
@@ -123,20 +215,16 @@ function makeRequest() {
 		Qualtrics.SurveyEngine.setEmbeddedData( "timeOutLog", timeOutLog );	
 		
 		if (status.includes("ERROR") == false){
-			if (numValues == numValuesToGet){
-				var i;
-				for (i = 0; i < numValues; i++)
-				{
-					retrievedValue[i] = parsed.getElementsByTagName("retrievedValue" + i)[0].innerHTML;
+			var i;
+			for (i = 0; i < numValuesToSave; i++){
+				retrievedValue[i] = parsed.getElementsByTagName("retrievedValue" + i)[0].innerHTML;
+				if (retrievedValue[i] == "terminated"){
+					terminate = "yes";
+				}
+				else{
 					Qualtrics.SurveyEngine.setEmbeddedData( saveDataArray[i], retrievedValue[i] );
 				}
 			}
-			else{
-				errorCount++;
-				status = "<p style='font-weight:bold; color:red'>ERROR 207: The number of responses to be retrieved (" + numValuesToGet + 
-				") does not match the number of responses to be saved (" + numValues + ").</p>";
-			}	
-			
 			document.getElementById("missingValues").innerHTML 	= missingValues;
 		}			
 	};
