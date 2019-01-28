@@ -1,6 +1,6 @@
 <!-- 
 
-Copyright 2018 Andras Molnar
+Copyright 2019 Andras Molnar
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
 and associated documentation files (the "Software"), to deal in the Software without 
@@ -19,7 +19,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
 
 The licensee undertakes to mention the name SMARTRIQS, the name of the licensor (Andras Molnar) 
 and to cite the following article in all publications in which results of experiments conducted 
-with the Software are published: Molnar, A. (2018). “SMARTRIQS: A Simple Method Allowing 
+with the Software are published: Molnar, A. (2019). “SMARTRIQS: A Simple Method Allowing 
 Real-Time Respondent Interaction in Qualtrics Surveys". Retrieved from https://smartriqs.com
 
 -->
