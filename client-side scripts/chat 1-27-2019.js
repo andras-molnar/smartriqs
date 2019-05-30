@@ -290,7 +290,7 @@ function httpRequest()
 
     this.send = function()
     {
-        ajax.open(this.method, this.url, this.asnyc);
+        ajax.open(this.method, this.url, this.async);
         ajax.send(this.data);
     };
 
