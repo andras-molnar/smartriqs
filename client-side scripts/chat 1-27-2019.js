@@ -76,12 +76,6 @@ if (["hms24","hm24","hms12","hm12","none"].includes(chatTimeFormat) == false){
 	chatTimeFormat = "none";
 	}
 
-// Flush parameters from Qualtrics
-Qualtrics.SurveyEngine.setEmbeddedData("chatWindowWidth","");
-Qualtrics.SurveyEngine.setEmbeddedData("chatWindowHeight","");
-Qualtrics.SurveyEngine.setEmbeddedData("allowExit","");
-Qualtrics.SurveyEngine.setEmbeddedData("chatDuration","");
-
 // Initialize variables
 var startTime = 0;
 var remainingTime = timeLimit;
@@ -94,7 +88,6 @@ request.method = "GET";
 // Add content & formatting to DOM elements
 if ("${e://Field/chatInstructions}") {
 	chatInstructions.innerHTML = "${e://Field/chatInstructions}<br><br><br>";
-	Qualtrics.SurveyEngine.setEmbeddedData("chatInstructions","");
 }
 else{chatInstructions.innerHTML = "Hit 'Enter' or the 'Send message' button to send a message.<br><br><br>";}
 
@@ -203,6 +196,14 @@ setTimeout(function () {
 function exitChat(){
 	exitDummy = 1;
 	updateChat(3); 	// Trigger " .. has left chat" message
+	
+	// Flush parameters from Qualtrics
+	Qualtrics.SurveyEngine.setEmbeddedData("chatWindowWidth","");
+	Qualtrics.SurveyEngine.setEmbeddedData("chatWindowHeight","");
+	Qualtrics.SurveyEngine.setEmbeddedData("allowExit","");
+	Qualtrics.SurveyEngine.setEmbeddedData("chatDuration","");
+	Qualtrics.SurveyEngine.setEmbeddedData("chatInstructions","");
+	
 	console.log("End CHAT");
 	page.clickNextButton();
 }
