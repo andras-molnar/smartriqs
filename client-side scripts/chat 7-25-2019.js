@@ -25,7 +25,6 @@ Molnar, A. (2019).
 “SMARTRIQS: A Simple Method Allowing Real-Time Respondent Interaction in Qualtrics Surveys". 
 Journal of Behavioral and Experimental Finance, 22, 161-169. doi: 10.1016/j.jbef.2019.03.005
 
-
 */
 
 Qualtrics.SurveyEngine.addOnload(function()
@@ -76,6 +75,7 @@ if (["hms24","hm24","hms12","hm12","none"].includes(chatTimeFormat) == false){
 	chatTimeFormat = "none";
 	}
 
+
 // Initialize variables
 var startTime = 0;
 var remainingTime = timeLimit;
@@ -88,6 +88,7 @@ request.method = "GET";
 // Add content & formatting to DOM elements
 if ("${e://Field/chatInstructions}") {
 	chatInstructions.innerHTML = "${e://Field/chatInstructions}<br><br><br>";
+	
 }
 else{chatInstructions.innerHTML = "Hit 'Enter' or the 'Send message' button to send a message.<br><br><br>";}
 
@@ -202,7 +203,7 @@ function exitChat(){
 	Qualtrics.SurveyEngine.setEmbeddedData("chatWindowHeight","");
 	Qualtrics.SurveyEngine.setEmbeddedData("allowExit","");
 	Qualtrics.SurveyEngine.setEmbeddedData("chatDuration","");
-	Qualtrics.SurveyEngine.setEmbeddedData("chatInstructions","");
+	Qualtrics.SurveyEngine.setEmbeddedData("chatInstructions","");	
 	
 	console.log("End CHAT");
 	page.clickNextButton();
@@ -253,6 +254,8 @@ function updateChat(mode) {
 	"&chatTimeFormat="	+ chatTimeFormat +
 	"&addText="			+ addText;
 	
+	
+	console.log("CHAT in progress...");
 	// Create callback for success containing the response
 	request.success = function(response)
 	{
