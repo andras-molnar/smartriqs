@@ -47,7 +47,16 @@ var maxWaitTime 	= parseInt(Qualtrics.SurveyEngine.getEmbeddedData("maxWaitTime"
 var freezeTime 		= parseInt(Qualtrics.SurveyEngine.getEmbeddedData("freezeTime"));
 	if (freezeTime > 30 || freezeTime < 1 	|| isNaN(freezeTime)) 		{freezeTime = 3;}	// use default if too high or too low
 console.log("Max wait time = " + maxWaitTime + "s | Freeze time = " + freezeTime + "s");
-
+var getWaitText = Qualtrics.SurveyEngine.getEmbeddedData("getWaitText");
+	if (getWaitText == "" || getWaitText == null){
+		console.log("Default get wait text applied: blank");
+	}
+	else{
+		console.log("Custom get wait text applied");
+		document.getElementById("getWaitText").innerHTML =getWaitText;
+	}
+	
+	
 // Initialize variables
 var request = new httpRequest();
 request.method = "GET";
