@@ -25,21 +25,30 @@ Molnar, A. (2019).
 “SMARTRIQS: A Simple Method Allowing Real-Time Respondent Interaction in Qualtrics Surveys". 
 Journal of Behavioral and Experimental Finance, 22, 161-169. doi: 10.1016/j.jbef.2019.03.005
 
-
 */
 
 Qualtrics.SurveyEngine.addOnload(function()
 {
+	var numOthers 	= parseInt(Qualtrics.SurveyEngine.getEmbeddedData("groupSize")) - 1;	
+	
 	var loadAnimationURL = Qualtrics.SurveyEngine.getEmbeddedData("loadAnimationURL");
 	if (loadAnimationURL == "" || loadAnimationURL == null){
+		console.log("Default loading animation applied");
 		Qualtrics.SurveyEngine.setEmbeddedData("loadAnimationURL","https://upload.wikimedia.org/wikipedia/commons/b/b1/Loading_icon.gif" );
 	}
 	
-	var numOthers 	= parseInt(Qualtrics.SurveyEngine.getEmbeddedData("groupSize")) - 1;	
-	if (numOthers == 1){
-		document.getElementById("prematchText").innerHTML = "<strong><span style='background-color:#AFEEEE;'>On the next screen, you will be matched with another participant.</span></strong>";
+	var preMatchText = Qualtrics.SurveyEngine.getEmbeddedData("preMatchText");
+	if (preMatchText == "" || preMatchText == null){
+		console.log("Default pre-match text applied");
+		if (numOthers == 1){
+			document.getElementById("prematchText").innerHTML = "<strong><span style='background-color:#AFEEEE;'>On the next screen, you will be matched with another participant.</span></strong>";
+		}
+		else{
+			document.getElementById("prematchText").innerHTML = "<strong><span style='background-color:#AFEEEE;'>On the next screen, you will be matched with " + numOthers + " other participants.</span></strong>";
+		}
 	}
 	else{
-			document.getElementById("prematchText").innerHTML = "<strong><span style='background-color:#AFEEEE;'>On the next screen, you will be matched with " + numOthers + " other participants.</span></strong>";
+		console.log("Custom pre-match text applied");
+		document.getElementById("prematchText").innerHTML = preMatchText;
 	}
 });
