@@ -19,12 +19,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
 
 The licensee undertakes to mention the name SMARTRIQS, the name of the licensor (Andras Molnar) 
 and to cite the following article in all publications in which results of experiments conducted 
-with the Software are published: 
-
-Molnar, A. (2019). 
-“SMARTRIQS: A Simple Method Allowing Real-Time Respondent Interaction in Qualtrics Surveys". 
-Journal of Behavioral and Experimental Finance, 22, 161-169. doi: 10.1016/j.jbef.2019.03.005
-
+with the Software are published: Molnar, A. (2019). “SMARTRIQS: A Simple Method Allowing 
+Real-Time Respondent Interaction in Qualtrics Surveys". Retrieved from https://smartriqs.com
 
 */
 
@@ -62,6 +58,43 @@ else{
 	console.log("Terminate text set manually: " + terminateText);
 }
 
+// This is an experimental feature, not included in the documentation
+	
+	// Toggle match alert ON / OFF		
+	
+if ("${e://Field/matchAlert}" == "yes"){
+	var matchAlert = 1;
+	var pageTitle = document.getElementsByTagName("title")[0]; // Grab page title element
+	var oldTitle = pageTitle.innerHTML; // Save old title
+	var alertUpdateInterval = 1000;
+	var alertDummy = 1;
+	console.log("Match alert turned ON");
+}
+else {
+	var matchAlert = 0;
+	console.log("Match alert turned OFF");
+}
+
+	
+function updateAlert() {
+setTimeout(function () {
+	//console.log(alertDummy + " updated version 3");	
+ 	if (alertDummy % 2 === 0 ) {		pageTitle.innerHTML = "&#9989; MATCHED! &#9989;"; 	} 
+	else {		pageTitle.innerHTML = "&#10004; MATCHED! &#10004;";	}
+	
+	
+	
+	if (alertDummy < 10) {alertDummy++; updateAlert();}
+	//console.log(alertDummy);
+	
+    },  alertUpdateInterval);
+}	
+	
+	
+// end of experimental section
+	
+	
+	
 console.log("Max wait time = " + maxWaitTime + "s | Freeze time = " + freezeTime + "s | Drop inactive = " + dropInactivePlayers + "s | BOT match = " + botMatch);
 
 // Initiate variables
@@ -86,6 +119,11 @@ function attemptMatch() {
 
 			if (bots.length < 1){
 				console.log("Matched with other participant(s)");
+				if (matchAlert == 1) {
+					updateAlert();
+					// alert("Successfully matched!");
+				}
+				
 				if (Qualtrics.SurveyEngine.getEmbeddedData("groupSize") == 2){
 					infoBox.innerHTML = "You have been successfully matched with another participant.";
 				}
@@ -97,6 +135,11 @@ function attemptMatch() {
 			else{
 				if (botMatch == "yes"){
 					console.log("Matched with BOT(s)");
+					if (matchAlert == 1) {
+						updateAlert();
+						// alert("Matched with BOT(s).");
+					}
+					
 					botArray = bots.split(",");	
 					numBots = botArray.length;
 					if (Qualtrics.SurveyEngine.getEmbeddedData("groupSize") == 2){
@@ -109,6 +152,8 @@ function attemptMatch() {
 				}
 				else {
 					console.log("No available participant -- Survey terminated");
+					if (matchAlert == 1) {alert("Survey terminated.");}
+					
 					infoBox.innerHTML = "Unfortunately, there are not enough other participants available.<br><br>" + terminateText;
 					Qualtrics.SurveyEngine.setEmbeddedData( "timeOutLog", "No available participant -- Survey terminated" );
 					setTimeout(function () {page.showNextButton();}, 2000 * freezeTime);
@@ -141,9 +186,12 @@ function makeRequest() {
 	"&timeOut=" 				+ 	timeOut + 
 	"&timeOutLog=" 				+ 	String(Qualtrics.SurveyEngine.getEmbeddedData("timeOutLog"));
 	
+	console.log("Request made");
+	
 	// Create callback for success containing the response
 	request.success = function(response)
 	{
+		console.log("Request success!");
 		var resp = response;
 		var parser = new DOMParser()
 		var parsed = parser.parseFromString(resp,"text/html");
@@ -188,7 +236,7 @@ function httpRequest()
 
     this.send = function()
     {
-        ajax.open(this.method, this.url, this.async);
+        ajax.open(this.method, this.url, this.asnyc);
         ajax.send(this.data);
     };
 
