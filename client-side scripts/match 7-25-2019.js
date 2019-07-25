@@ -19,8 +19,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
 
 The licensee undertakes to mention the name SMARTRIQS, the name of the licensor (Andras Molnar) 
 and to cite the following article in all publications in which results of experiments conducted 
-with the Software are published: Molnar, A. (2019). “SMARTRIQS: A Simple Method Allowing 
-Real-Time Respondent Interaction in Qualtrics Surveys". Retrieved from https://smartriqs.com
+with the Software are published: 
+
+Molnar, A. (2019). 
+“SMARTRIQS: A Simple Method Allowing Real-Time Respondent Interaction in Qualtrics Surveys". 
+Journal of Behavioral and Experimental Finance, 22, 161-169. doi: 10.1016/j.jbef.2019.03.005
 
 */
 
@@ -49,7 +52,17 @@ var dropInactivePlayers = parseInt(Qualtrics.SurveyEngine.getEmbeddedData("dropI
 	if (dropInactivePlayers > 60 || dropInactivePlayers < 3	|| isNaN(dropInactivePlayers)) {dropInactivePlayers = 10;}	// use default if too high or too low
 var botMatch 		= Qualtrics.SurveyEngine.getEmbeddedData("botMatch");
 	if (botMatch != "yes"){botMatch = "no";}
-
+var matchWaitText = Qualtrics.SurveyEngine.getEmbeddedData("matchWaitText");
+	if (matchWaitText == "" || matchWaitText == null){
+		console.log("Default match wait text applied");
+		document.getElementById("matchWaitText").innerHTML ="We are currently trying to match you with other participant(s).<br />Please wait patiently to be matched. This may take a few minutes.<br />Please do NOT&nbsp;minimize this window or navigate to another page.<br />";
+	}
+	else{
+		console.log("Custom match wait text applied");
+		document.getElementById("matchWaitText").innerHTML = matchWaitText;
+	}
+	
+	
 if ("${e://Field/terminateText}" == false){
 	var terminateText = "The survey has been terminated. Please contact the researcher to receive partial compensation for your participation.";
 }
