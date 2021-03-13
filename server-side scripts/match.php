@@ -110,7 +110,10 @@ if ($errorCount == 0){
     	
 		else {	// Otherwise, wait.
     		$status = "waiting";
-    		if ($timeOut == "yes") {fillGroupWithBots($groupData, $currentTime);}	// If the botMatch is set to 1 (either by default, or because the participant waited too long), fill open spots with bots.
+    		if ($timeOut == "yes") {
+				fillGroupWithBots($groupData, $currentTime);
+				$status = "matched";
+				}	// If the botMatch is set to 1 (either by default, or because the participant waited too long), fill open spots with bots.
     	}
    	}
 
@@ -123,8 +126,15 @@ if ($errorCount == 0){
 		$groupData[$participantIndex] = $participantID;										// ... and assign participantID to that index.
 	}
 	
-	$groupData[$participantIndex + 1] = $currentTime;		// Update the participant's 'last active' timestamp.
-	addData($updateData, $groupData, $datafile);			// Add new/updated group data to the datafile. 
+	$oldTime = $groupData[$participantIndex + 1];					// Retrieve old timestamp
+	
+	// If still waiting and the record is less than 10 seconds old, do nothing...
+	if ($status == "waiting" and ($currentTime - $oldTime < 10){}
+	// ... otherwise, save new record
+	else {
+		$groupData[$participantIndex + 1] = $currentTime;	// Update the participant's 'last active' timestamp.
+		addData($updateData, $groupData, $datafile);		// Add new/updated group data to the datafile. 
+	}															
 } 
 
 createOutputFields($status, $groupID, $participantCondition, $participantRole, $openSpots, $bots, $errorCount, $timeOutLog);	# Create output fields that can be recognized in Qualtrics.
@@ -233,7 +243,7 @@ function checkGroupmembers($groupData, $groupSize, $currentTime, $playerIndexArr
 			// If not bot, check activity
 			else{
 				// If not open, check whether the player has been active. If inactive, drop from group, unless: 1) the target player is the participant, 2) is a BOT, or 3) the group is still open.
-				if ($currentTime - $groupData[$playerIndexArray[$i]+1] > ($dropInactivePlayers + 2) and $participantIndex != $playerIndexArray[$i] and strpos($groupData[$playerIndexArray[$i]],"BOT") != 1 and $groupData[2] == "open"){	
+				if ($currentTime - $groupData[$playerIndexArray[$i]+1] > ($dropInactivePlayers + 20) and $participantIndex != $playerIndexArray[$i] and strpos($groupData[$playerIndexArray[$i]],"BOT") != 1 and $groupData[2] == "open"){	
 					$groupData[$playerIndexArray[$i]] = "[open]";
 					$groupData[$playerIndexArray[$i]+1] = "[.....]";
 				}
