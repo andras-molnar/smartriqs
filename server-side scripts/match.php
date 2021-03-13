@@ -112,7 +112,6 @@ if ($errorCount == 0){
     		$status = "waiting";
     		if ($timeOut == "yes") {
 				fillGroupWithBots($groupData, $currentTime);
-				$status = "matched";
 				}	// If the botMatch is set to 1 (either by default, or because the participant waited too long), fill open spots with bots.
     	}
    	}
