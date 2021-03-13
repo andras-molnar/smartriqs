@@ -127,14 +127,14 @@ if ($errorCount == 0){
 	}
 	
 	$oldTime = $groupData[$participantIndex + 1];					// Retrieve old timestamp
-	
+
 	// If still waiting and the record is less than 10 seconds old, do nothing...
-	if ($status == "waiting" and ($currentTime - $oldTime < 10){}
+	if ($status == "waiting" and ($currentTime - $oldTime < 10)){	}
 	// ... otherwise, save new record
 	else {
 		$groupData[$participantIndex + 1] = $currentTime;	// Update the participant's 'last active' timestamp.
 		addData($updateData, $groupData, $datafile);		// Add new/updated group data to the datafile. 
-	}															
+	}	
 } 
 
 createOutputFields($status, $groupID, $participantCondition, $participantRole, $openSpots, $bots, $errorCount, $timeOutLog);	# Create output fields that can be recognized in Qualtrics.
