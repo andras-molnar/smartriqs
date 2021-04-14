@@ -56,7 +56,6 @@ if (empty($_GET["timeOutLog"]))    	{$timeOutLog = "";}		else {$timeOutLog = $_G
 if (file_exists($researcherID) == FALSE)	{errorMessage("101");};
 if ($groupSize < 2 or $groupSize > 8)	{errorMessage("104");}
 if (filter_var($numStages, FILTER_VALIDATE_INT) == FALSE or $numStages < 1)	{errorMessage("105");}
-if (count($conditionsArray) > 1 and in_array($participantCondition, $conditionsArray) == FALSE and $participantCondition != "random")	{errorMessage("108");}
 if ($getStage > $numStages or filter_var($getStage, FILTER_VALIDATE_INT) == FALSE or $getStage < 1)	{errorMessage("107");}
 
 // Retrieve database 

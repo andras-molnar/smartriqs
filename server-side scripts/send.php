@@ -53,7 +53,6 @@ $currentTime = getTime($timeZone);
 if (file_exists($researcherID) == FALSE)	{errorMessage("101");};
 if (in_array($groupSize, array(2,3,4,5,6,7,8)) == FALSE)	{errorMessage("104");}
 if (filter_var($numStages, FILTER_VALIDATE_INT) == FALSE or $numStages < 1)	{errorMessage("105");}
-if (count($conditionsArray) > 1 and in_array($participantCondition, $conditionsArray) == FALSE and $participantCondition != "random")	{errorMessage("108");}
 if ($sendStage > $numStages or filter_var($sendStage, FILTER_VALIDATE_INT) == FALSE or $sendStage < 1)	{errorMessage("107");}
 
 // Retrieve database 
